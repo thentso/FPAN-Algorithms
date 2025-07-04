@@ -33,6 +33,42 @@ def madd(x0, x1, y0, y1):
 
 
 
+#  Splits 53-bit IEEE double precision floating point number into a_hi, a_lo, such that a = a_hi + a_lo * a_hi
+def split(a): 
+    t =(2**27 + 1) * a
+    a_hi = t - (t - a)
+    a_lo = a - a_hi
+    return (a_hi, a_lo)
+
+
+def TwoProd(a, b):
+    p = a * b
+    (ah, al) = split(a)
+    (bh, bl) = split(b)
+    e = ((ah * bh - p) + ah * bl + al * bh) + al * bl
+    return (p, e)
+
+
+
+def ddmul(x0, x1, y0, y1):
+    p00, e00 = TwoProd(x0, y0)
+    p01, e01 = TwoProd(x0, y1)
+    p10, e10 = TwoProd(x1, y0)
+    p11, e11 = TwoProd(x1, y1)
+    t1, t2 = twoSum(p00, p01 + p10)
+    return twoSum(t1, t2 + e00 + p11)
+
+
+def mmul(x0, x1, y0, y1):
+    p00, e00 = TwoProd(x0, y0)
+    p01, e01 = TwoProd(x0, y1)
+    p10, e10 = TwoProd(x1, y0)
+    p11, e11 = TwoProd(x1, y1)
+    temp = p01 + p10
+    return twoSum(p00, e00 + temp)
+
+
+
 
 
 # function & test below not actually necessary for actual twoSum computation -- but will keep just if we want to test anything!
