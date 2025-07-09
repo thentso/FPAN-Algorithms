@@ -7,30 +7,72 @@ class DDFloat:
         self.x0 = x0
         self.x1 = x1
     
+    def __pos__(self):
+        return DDFloat(self.x0, self.x1)
+
+    def __neg__(self):
+        # negates both components
+        return DDFloat(-self.x0, -self.x1)
+
     def __add__(self, rhs):  # representing the ddadd function
         assert isinstance(rhs, DDFloat), f"Second variable is not a DDFloat, got {type(rhs)}"
         z0, z1 = ddadd(self.x0, self.x1, rhs.x0, rhs.x1)
         return DDFloat(z0, z1)
     
+    def __sub__(self, rhs):
+        return self + (-rhs)
+    
     def __mul__(self, rhs):
         assert isinstance(rhs, DDFloat), f"Second variable is not a DDFloat, got {type(rhs)}"
         z0, z1 = ddmul(self.x0, self.x1, rhs.x0, rhs.x1)
         return DDFloat(z0, z1)
+    
+
+    def __truediv__(self, rhs):
+        # 1. Find 1/y
+        u = 1/rhs.x0  # float-precision operation as first guess
+        for _ in range(2):
+            u_next = u + u(1 - rhs.x0 * u)
+            u = u_next
+    
+        # 2. Multiply x * 1/y
+        return self * u
 
 class MFloat:
     def __init__(self, x0: float, x1: float):
         self.x1 = x1
         self.x0 = x0
 
+    def __pos__(self):
+        return MFloat(self.x0, self.x1)
+
+    def __neg__(self):
+        # negates both components
+        return MFloat(-self.x0, -self.x1)
+
     def __add__(self, rhs):
         assert isinstance(rhs, MFloat), f"Second variable is not a MFloat, got {type(rhs)}"
         z0, z1 = madd(self.x0, self.x1, rhs.x0, rhs.x1)
         return MFloat(z0, z1)
+    
+    def __sub__(self, rhs):
+        return self + (-rhs)
 
     def __mul__(self, rhs):
         assert isinstance(rhs, MFloat), f"Second variable is not a MFloat, got {type(rhs)}"
         z0, z1 = mmul(self.x0, self.x1, rhs.x0, rhs.x1)
         return MFloat(z0, z1)
+    
+    def __truediv__(self, rhs):
+        # 1. Find 1/y
+        u = 1/rhs.x0  # float-precision operation as first guess
+        for _ in range(2):
+            u_next = u + u(1 - rhs.x0 * u)
+            u = u_next
+    
+        # 2. Multiply x * 1/y
+        return self * u
+
 
 def twoSum(a, b):
     s = a + b
