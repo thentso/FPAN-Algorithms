@@ -1,5 +1,33 @@
 import math
 
+# Testing Multiplcation
+
+class DDFloat:
+    def __init__(self, x0: float, x1: float):
+        self.x0 = x0
+        self.x1 = x1
+    
+    def __add__(self, other):  # representing the ddadd function
+        assert isinstance(other, DDFloat), f"Second variable is not a DDFloat, got {type(other)}"
+        return ddadd(self.x0, self.x0, other.x0, other.x1)
+    
+    def __mul__(self, other):
+        assert isinstance(other, DDFloat), f"Second variable is not a DDFloat, got {type(other)}"
+        return ddmul(self.x0, self.x0, other.x0, other.x1)
+
+class MFloat:
+    def __init__(self, x0: float, x1: float):
+        self.x1 = x1
+        self.x0 = x0
+
+    def __add__(self, other):
+        assert isinstance(other, MFloat), f"Second variable is not a MFloat, got {type(other)}"
+        return madd(self.x0, self.x0, other.x0, other.x1)
+
+    def __mul__(self, other):
+        assert isinstance(other, MFloat), f"Second variable is not a MFloat, got {type(other)}"
+        return mmul(self.x0, self.x0, other.x0, other.x1)
+
 def twoSum(a, b):
     s = a + b
     aEff = s - b  # amount of a in the truncated s
