@@ -25,8 +25,6 @@ def evalM(a, b, c, d, e):
 
 
 
-
-
 TEST_CASES = [
     (8.834235326183948e71,  9.578097123275567e53,
      -4.6316785776358486e77, -2.55523157298961e61,
@@ -59,22 +57,7 @@ TEST_CASES = [
      1.7413332937543717e45,   9.942726180263738e-79),
 ]
 
-if __name__ == "__main__":
-    # for i, (x0, x1, y0, y1, dd0_exp, dd1_exp, m0_exp, m1_exp) in enumerate(TEST_CASES, 1):   # syntax starts i at 1, but still is using each case and forgetting the 0th
-    #     dd0_act, dd1_act = ddadd(x0, x1, y0, y1)
-    #     m0_act,  m1_act  = madd(x0, x1, y0, y1)
-
-    #     print(f"\n=== Case #{i} ===")
-    #     print(" Inputs: x0=", x0, " x1=", x1, " y0=", y0, " y1=", y1)
-    #     print(" ddadd → actual:   ", (dd0_act, dd1_act))
-    #     print("        expected: ", (dd0_exp, dd1_exp))
-    #     print(" match? ", (dd0_act, dd1_act) == (dd0_exp, dd1_exp))
-
-    #     print(" madd  → actual:   ", (m0_act, m1_act))
-    #     print("        expected: ", (m0_exp, m1_exp))
-    #     print(" match? ", (m0_act, m1_act) == (m0_exp, m1_exp))
-
-
+def testExpression():
     getcontext().prec = 50
 
     a, b, c, d, e = 1.23, 4.56, 7.89, 0.12, 3.45
@@ -103,4 +86,56 @@ if __name__ == "__main__":
 
         print(f"{name:<8} -> {val:.10E}, error = {err:.2E}")
         # : gives format specifiers (< is left alight w/ number being field width, .num is precision, E is in scientific/exponential notation)
+
+
+def test_division(a: float, b: float):
+    getcontext().prec = 50
+    truth = Decimal(a) / Decimal(b)
+
+    float_val = a / b
+    dd = DDFloat(a, 0) / DDFloat(b, 0)
+    m = MFloat(a, 0) / MFloat(b, 0)
+
+    # 3) helper to collapse a result into a Decimal
+    def to_decimal(x):
+        # if it’s a double-term expansion
+        if hasattr(x, "x0") and hasattr(x, "x1"):
+            return Decimal(x.x0) + Decimal(x.x1)
+        # if you ever want to handle Fraction, add an isinstance check here
+        return Decimal(x)
+
+    # 4) build a table of (name, value, error)
+    rows = [
+        ("Float",    to_decimal(float_val)),
+        ("DDFloat",  to_decimal(dd)),
+        ("MFloat",   to_decimal(m)),
+    ]
+
+    # 5) print nicely
+    print(f"{'Method':<8}  {'Value':<17}   {'Error':<12}")
+    for name, dec_val in rows:
+        err = abs(dec_val - truth)
+        # .12E shows 12 digits after decimal in scientific form
+        print(f"{name:<8}  {dec_val:.12E}   {err:.2E}")
+
+
+    
+if __name__ == "__main__":
+    # for i, (x0, x1, y0, y1, dd0_exp, dd1_exp, m0_exp, m1_exp) in enumerate(TEST_CASES, 1):   # syntax starts i at 1, but still is using each case and forgetting the 0th
+    #     dd0_act, dd1_act = ddadd(x0, x1, y0, y1)
+    #     m0_act,  m1_act  = madd(x0, x1, y0, y1)
+
+    #     print(f"\n=== Case #{i} ===")
+    #     print(" Inputs: x0=", x0, " x1=", x1, " y0=", y0, " y1=", y1)
+    #     print(" ddadd → actual:   ", (dd0_act, dd1_act))
+    #     print("        expected: ", (dd0_exp, dd1_exp))
+    #     print(" match? ", (dd0_act, dd1_act) == (dd0_exp, dd1_exp))
+
+    #     print(" madd  → actual:   ", (m0_act, m1_act))
+    #     print("        expected: ", (m0_exp, m1_exp))
+    #     print(" match? ", (m0_act, m1_act) == (m0_exp, m1_exp))
+
+
+    # testExpression()
+    test_division(1.24, 3.56)
     

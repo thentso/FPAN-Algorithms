@@ -29,13 +29,18 @@ class DDFloat:
     
 
     def __truediv__(self, rhs):
-        # 1. Find 1/y
-        u = 1/rhs.x0  # float-precision operation as first guess
-        for _ in range(2):
-            u_next = u + u(1 - rhs.x0 * u)
-            u = u_next
-    
-        # 2. Multiply x * 1/y
+        assert isinstance(rhs, DDFloat)
+        # 1) seed reciprocal as a DD number (low part zero)
+        u = DDFloat(1.0 / rhs.x0, 0.0)
+        one = DDFloat(1.0, 0.0)
+
+        # 2) one Newton step: u ← u + u*(1 - rhs*u)
+        #    all ops now use ddadd/ddmul under the hood
+        residual = one - (rhs * u)   # (1 - y*u)
+        correction = u * residual    # u*(1 - y*u)
+        u = u + correction
+
+        # 3) x / y = x * (1/y)
         return self * u
 
 class MFloat:
@@ -64,13 +69,18 @@ class MFloat:
         return MFloat(z0, z1)
     
     def __truediv__(self, rhs):
-        # 1. Find 1/y
-        u = 1/rhs.x0  # float-precision operation as first guess
-        for _ in range(2):
-            u_next = u + u(1 - rhs.x0 * u)
-            u = u_next
-    
-        # 2. Multiply x * 1/y
+        assert isinstance(rhs, MFloat)
+        # 1) seed reciprocal as a DD number (low part zero)
+        u = MFloat(1.0 / rhs.x0, 0.0)
+        one = MFloat(1.0, 0.0)
+
+        # 2) one Newton step: u ← u + u*(1 - rhs*u)
+        #    all ops now use ddadd/ddmul under the hood
+        residual = one - (rhs * u)   # (1 - y*u)
+        correction = u * residual    # u*(1 - y*u)
+        u = u + correction
+
+        # 3) x / y = x * (1/y)
         return self * u
 
 
