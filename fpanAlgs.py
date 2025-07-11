@@ -34,7 +34,7 @@ class DDFloat:
         u = DDFloat(1.0 / rhs.x0, 0.0)
         one = DDFloat(1.0, 0.0)
 
-        # 2) one Newton step: u ← u + u*(1 - rhs*u)
+        # 2) one Newton step: u <- u + u*(1 - rhs*u)
         #    all ops now use ddadd/ddmul under the hood
         residual = one - (rhs * u)   # (1 - y*u)
         correction = u * residual    # u*(1 - y*u)
@@ -42,6 +42,22 @@ class DDFloat:
 
         # 3) x / y = x * (1/y)
         return self * u
+    
+    def sqrt(self):
+        assert isinstance(self, DDFloat)
+
+        u = DDFloat(1.0 / (self.x0 ** 1/2), 0.0)
+        one = DDFloat(1.0, 0.0)
+
+        # u <- u + u(1 - xu^2) * 1/2
+        residual = one - (self * u * u)
+        correction = u * residual
+        half_correction = DDFloat(0.5 * correction.x0, 0.5 * correction.x1)
+        u = u + half_correction
+
+        return one / u
+    
+
 
 class MFloat:
     def __init__(self, x0: float, x1: float):
@@ -82,6 +98,21 @@ class MFloat:
 
         # 3) x / y = x * (1/y)
         return self * u
+    
+    def sqrt(self):
+        assert isinstance(self, MFloat)
+
+        u = MFloat(1.0 / (self.x0 ** 1/2), 0.0)
+        one = MFloat(1.0, 0.0)
+
+        # u <- u + u(1 - xu^2) * 1/2
+        residual = one - (self * u * u)
+        correction = u * residual
+        half_correction = MFloat(0.5 * correction.x0, 0.5 * correction.x1)
+        u = u + half_correction
+
+        return one / u
+
 
 
 def twoSum(a, b):

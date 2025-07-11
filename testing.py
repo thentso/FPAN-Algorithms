@@ -1,6 +1,7 @@
 from fpanAlgs import twoSum, split, twoProd, ddadd, madd, ddmul, mmul, DDFloat, MFloat
 from fractions import Fraction
 from decimal import Decimal, getcontext
+import math
 
 # Test the 5 different datatypes for multiplication (evaluating on a common expression a*b + c*d*e)
 
@@ -118,6 +119,41 @@ def test_division(a: float, b: float):
         # .12E shows 12 digits after decimal in scientific form
         print(f"{name:<8}  {dec_val:.12E}   {err:.2E}")
 
+def test_sqrt(a: float):
+    getcontext().prec = 50
+    truth = Decimal(a).sqrt()
+
+    float_val = math.sqrt(a)
+    dd = DDFloat(a,0).sqrt()
+    m = MFloat(a, 0).sqrt()
+    
+     # 3) helper to collapse a result into a Decimal
+    def to_decimal(x):
+        # if it’s a double-term expansion
+        if hasattr(x, "x0") and hasattr(x, "x1"):
+            return Decimal(x.x0) + Decimal(x.x1)
+        # if you ever want to handle Fraction, add an isinstance check here
+        return Decimal(x)
+
+    # 4) build a table of (name, value, error)
+    rows = [
+        ("Float",    to_decimal(float_val)),
+        ("DDFloat",  to_decimal(dd)),
+        ("MFloat",   to_decimal(m)),
+    ]
+
+    # 5) print nicely
+    print(f"{'Method':<8}  {'Value':<17}   {'Error':<12}")
+    for name, dec_val in rows:
+        err = abs(dec_val - truth)
+        # .12E shows 12 digits after decimal in scientific form
+        print(f"{name:<8}  {dec_val:.12E}   {err:.2E}")
+
+
+
+
+
+
 
     
 if __name__ == "__main__":
@@ -137,5 +173,6 @@ if __name__ == "__main__":
 
 
     # testExpression()
-    test_division(1.24, 3.56)
+    # test_division(1.24, 3.56)
+    test_sqrt(5.32)
     
